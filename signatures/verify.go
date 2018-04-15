@@ -20,9 +20,11 @@ func writeTempFile(filename string, contents string) (string, error) {
 }
 
 func VerifyDetached(message string, signature string) (bool, error) {
-  msg_file, err := writeTempFile("msg", message)
-  sig_file, err := writeTempFile("sig", signature)
-  if err != nil { return false, err }
+  msg_file, msg_err := writeTempFile("msg", message)
+  sig_file, sig_err := writeTempFile("sig", signature)
+  if (msg_err != nil || sig_err != nil) { 
+    return false, errors.New("FileAccessError") 
+  }
   defer os.Remove(msg_file)
   defer os.Remove(sig_file)
 
@@ -41,4 +43,23 @@ func Verify(signed_msg string) bool {
   }
   result := process.CheckSuccess(signed_msg)
   return result
+}
+
+func VerifyFile(src_file string, sig_file string) (bool, error) {
+  _, src_err := os.Stat(src_file)
+  _, sig_err := os.Stat(sig_file)
+  if (os.IsNotExist(src_err) || os.IsNotExist(sig_err)) {
+    return false, errors.New("FileAccessError")
+  }
+  
+  process := execution.Command {
+    App:  APP,
+    Args: []string { "--verify", sig_file, src_file },
+  }
+  return process.CheckSuccess(), nil
+  // if err == nil {
+  //   return true, nil
+  // } else {
+  //   return false, nil
+  // }
 }

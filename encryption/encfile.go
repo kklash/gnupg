@@ -1,24 +1,32 @@
 package encryption
 
 import (
-  "os"
   "errors"
+  "github.com/kklash/gogpg/execution"
 )
 
-func EncryptFile(filepath string, recipients ...string) (string, error) {
-  fileh, err := os.Open(filepath)
-  if err != nil { 
-    return "", errors.New("FileAccessError")
+
+var EncryptionError error = errors.New("EncryptionError")
+
+func EncryptFile(filepath string, output_path string, recipients ...string) error {
+  if len(recipients) < 1 {
+    return EncryptionError
   }
-  stats, _ := fileh.Stat()
-  var length int64 = stats.Size()
-  data := make([]byte, length)
-  fileh.Read(data)
-  plaintext := string(data)
   
-  ciphertext, err := Encrypt(plaintext, recipients...)
-  if err != nil {
-    return "", errors.New("EncryptionError") 
+  process := execution.Command {
+    App:  APP,
+    Args: make([]string, 0, len(recipients)*2 + 10),
   }
-  return ciphertext, nil
+  process.AddArgs("-a", "--yes", "--always-trust", "-o", output_path)
+  
+  for i:=0; i<len(recipients); i++ {
+    process.AddArgs("--recipient", recipients[i])
+  }
+  process.AddArgs("--encrypt", filepath)
+  
+  if process.CheckSuccess() {
+    return nil
+  } else {
+    return EncryptionError
+  }
 }

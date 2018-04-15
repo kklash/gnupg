@@ -10,8 +10,8 @@ func Encrypt(input string, recipients ...string) (string, error) {
   return encryption.Encrypt(input, recipients...)
 }
 
-func EncryptFile(filepath string, recipients ...string) (string, error) {
-  return encryption.EncryptFile(filepath, recipients...)
+func EncryptFile(filepath string, output_path string, recipients ...string) error {
+  return encryption.EncryptFile(filepath, output_path, recipients...)
 }
 
 func Decrypt(ciphertext string) (string, error) {
@@ -30,10 +30,18 @@ func Sign(message string, key string) (string, error) {
   return signatures.Sign(message, key)
 }
 
+func SignFile(filepath string, key string) (string, error) {
+  return signatures.SignFile(filepath, key)
+}
+
 func VerifyDetached(message string, signature string) (bool, error) {
   return signatures.VerifyDetached(message, signature)
 }
 
 func Verify(signed_msg string) bool {
   return signatures.Verify(signed_msg)
+}
+
+func VerifyFile(src_file string, sig_file string) (bool, error) {
+  return signatures.VerifyFile(src_file, sig_file)
 }

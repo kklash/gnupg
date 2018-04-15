@@ -30,3 +30,16 @@ func Sign(message string, key string) (string, error) {
   }
   return signed_msg, nil
 }
+
+func SignFile(filepath string, key string) (string, error) {
+  process := execution.Command {
+    App:  APP,
+    Args: []string { "-a", "-b", "-u", key, "-o", "-", "--sign", filepath },
+  }
+  
+  signature, err := process.Execute()
+  if err != nil { 
+    return "", errors.New("SignaturesError") 
+  }
+  return signature, nil
+}

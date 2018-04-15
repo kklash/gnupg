@@ -8,9 +8,13 @@ import (
 const APP string = "gpg"
 
 func Encrypt(input string, recipients ...string) (string, error) {
+  if len(recipients) < 1 {
+    return "", errors.New("EncryptionError")
+  }
+  
   CMD := execution.Command {
     App: APP,
-    Args: make([]string, 0, len(recipients)+10),
+    Args: make([]string, 0, len(recipients)*2 + 10),
   }
   CMD.AddArgs("--armor", "--always-trust", "--output", "-")
   
