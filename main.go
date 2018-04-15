@@ -2,9 +2,9 @@ package main
 
 import (
   "fmt"
-  "./encryption"
-  "./decryption"
-  "./signatures"
+  "github.com/kklash/gogpg/encryption"
+  "github.com/kklash/gogpg/decryption"
+  "github.com/kklash/gogpg/signatures"
   "log"
 )
 

@@ -5,8 +5,6 @@ import (
   "errors"
 )
 
-const APP string = "gpg"
-
 func SignDetached(message string, key string) (string, error) {
   process := execution.Command {
     App:  APP,

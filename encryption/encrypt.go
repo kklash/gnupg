@@ -5,6 +5,8 @@ import (
   "errors"
 )
 
+const APP string = "gpg"
+
 func Encrypt(input string, recipients ...string) (string, error) {
   CMD := execution.Command {
     App: APP,
