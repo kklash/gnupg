@@ -2,26 +2,34 @@ package signatures
 
 import (
   "os"
+  "io/ioutil"
   "regexp"
   "errors"
   "github.com/kklash/gogpg/execution"
 )
 
 func DecryptAndVerifyFile(cipher_file, output_file, key string) (bool, error) {
+  tmpfile, err := ioutil.TempFile("/tmp", "gogpg")
+  if err != nil {
+    return false, errors.New("FileAccessError: Could not make temp file for gpg logging")
+  }
+  defer tmpfile.Close()
+  defer os.Remove(tmpfile.Name())
+
+  
   process := execution.Command {
     App:  APP,
-    Args: []string { "--status-fd", "1", "-o", output_file, "-d", cipher_file },
+    Args: []string { "--status-file", tmpfile.Name(), "-o", output_file, "-d", cipher_file },
   }
-  output, err := process.Execute()
-  if err != nil { 
-    return false, err
-  }
-  goodsig, _ := regexp.MatchString("GOODSIG \\S* " + key, output)
-  if goodsig {
+  success := process.CheckSuccess()
+  tmpstats, _ := tmpfile.Stat()
+  log := make([]byte, tmpstats.Size())
+  tmpfile.Read(log)
+  goodsig, _ := regexp.Match("GOODSIG \\S* " + key, log)
+  if goodsig && success {
     return true, nil
-  } else {
-    return false, nil
   }
+  return false, nil
 }
 
 func VerifyFileDetached(src_file, sig_file string) (bool, error) {

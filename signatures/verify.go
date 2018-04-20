@@ -24,7 +24,6 @@ func VerifyDetached(message, signature string) (bool, error) {
   
   msg_file.WriteString(message)
   sig_file.WriteString(signature)
-  
 
   process := execution.Command {
     App:  APP,

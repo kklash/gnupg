@@ -10,7 +10,6 @@ func SignDetached(message, key string) (string, error) {
     App:  APP,
     Args: []string { "-a", "-b", "-u", key, "--sign" },
   }
-
   signature, err := process.Execute(message)
   if err != nil { 
     return "", errors.New("SignaturesError: Could not detached-sign string with key " + key) 
@@ -23,7 +22,6 @@ func Sign(message, key string) (string, error) {
     App:  APP,
     Args: []string { "-a", "-u", key, "--sign" },
   }
-  
   signed_msg, err := process.Execute(message)
   if err != nil { 
     return "", errors.New("SignaturesError: Could not sign string with key " + key) 

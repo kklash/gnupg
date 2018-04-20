@@ -11,13 +11,11 @@ func Encrypt(input string, recipients ...string) (string, error) {
   if len(recipients) < 1 {
     return "", errors.New("EncryptionError: no recipients given to Encrypt")
   }
-  
   CMD := execution.Command {
     App: APP,
     Args: make([]string, 0, len(recipients)*2 + 10),
   }
   CMD.AddArgs("--armor", "--always-trust", "--output", "-")
-  
   for i:=0; i<len(recipients); i++ {
     CMD.AddArgs("--recipient", recipients[i])
   }
