@@ -15,7 +15,7 @@ func Decrypt(ciphertext string) (string, error) {
   
   plaintext, err := process.Execute(ciphertext)
   if err != nil {
-    return "", errors.New("DecryptionError")
+    return "", errors.New("DecryptionError: Could not decrypt string")
   }
   
   return plaintext, nil

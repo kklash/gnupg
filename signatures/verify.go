@@ -3,37 +3,34 @@ package signatures
 import (
   "github.com/kklash/gogpg/execution"
   "errors"
+  "io/ioutil"
   "os"
+  "regexp"
 )
 
 const APP string = "gpg"
 
-func writeTempFile(filename string, contents string) (string, error) {
-  filepath := "/tmp/" + filename
-  fh, err := os.Create(filepath)
-  if err != nil {
-    return "", errors.New("FileAccessError")
+func VerifyDetached(message, signature string) (bool, error) {
+  msg_file, msg_err := ioutil.TempFile("/tmp", "gogpg")
+  if msg_err != nil {
+    return false, errors.New("FileAccessError: Could not create msg temp file for verification") 
   }
-  defer fh.Close()
-  fh.WriteString(contents)
-  return filepath, nil
-}
-
-func VerifyDetached(message string, signature string) (bool, error) {
-  msg_file, msg_err := writeTempFile("msg", message)
-  sig_file, sig_err := writeTempFile("sig", signature)
-  if (msg_err != nil || sig_err != nil) { 
-    return false, errors.New("FileAccessError") 
+  sig_file, sig_err := ioutil.TempFile("/tmp", "gogpg")
+  if sig_err != nil { 
+    return false, errors.New("FileAccessError: Could not create sig temp file for verification") 
   }
-  defer os.Remove(msg_file)
-  defer os.Remove(sig_file)
+  defer os.Remove(msg_file.Name())
+  defer os.Remove(sig_file.Name())
+  
+  msg_file.WriteString(message)
+  sig_file.WriteString(signature)
+  
 
   process := execution.Command {
     App:  APP,
-    Args: []string { "--verify", sig_file, msg_file },
+    Args: []string { "--verify", sig_file.Name(), msg_file.Name() },
   }
-  result := process.CheckSuccess()
-  return result, nil
+  return process.CheckSuccess(), nil
 }
 
 func Verify(signed_msg string) bool {
@@ -45,21 +42,27 @@ func Verify(signed_msg string) bool {
   return result
 }
 
-func VerifyFile(src_file string, sig_file string) (bool, error) {
-  _, src_err := os.Stat(src_file)
-  _, sig_err := os.Stat(sig_file)
-  if (os.IsNotExist(src_err) || os.IsNotExist(sig_err)) {
-    return false, errors.New("FileAccessError")
+func DecryptAndVerifyString(ciphertext, key string) (bool, string, error) {
+  tmpfile, err := ioutil.TempFile("/tmp", "gogpg")
+  if err != nil {
+    return false, "", errors.New("FileAccessError: Could create temp file for gpg output logging")
   }
-  
+  defer tmpfile.Close()
+  defer os.Remove(tmpfile.Name())
   process := execution.Command {
     App:  APP,
-    Args: []string { "--verify", sig_file, src_file },
+    Args: []string { "--status-file", tmpfile.Name(), "-o", "-", "-d" },
   }
-  return process.CheckSuccess(), nil
-  // if err == nil {
-  //   return true, nil
-  // } else {
-  //   return false, nil
-  // }
+  output, err := process.Execute(ciphertext)
+  if err != nil { 
+    return false, "", errors.New("DecryptionError: Could not decrypt ciphertext string. Is the key available?")
+  }
+  tmpstats, _ := tmpfile.Stat()
+  log := make([]byte, tmpstats.Size())
+  tmpfile.Read(log)
+  goodsig, _ := regexp.Match("GOODSIG \\S* "+key, log)
+  if goodsig {
+    return true, output, nil
+  }
+  return false, "", nil
 }

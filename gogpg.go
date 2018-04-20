@@ -18,8 +18,8 @@ func Decrypt(ciphertext string) (string, error) {
   return decryption.Decrypt(ciphertext)
 }
 
-func DecryptFile(filepath string) (string, error) {
-  return decryption.DecryptFile(filepath)
+func DecryptFile(filepath string, output_path string) error {
+  return decryption.DecryptFile(filepath, output_path)
 }
 
 func SignDetached(message string, key string) (string, error) {
@@ -30,10 +30,14 @@ func Sign(message string, key string) (string, error) {
   return signatures.Sign(message, key)
 }
 
-func SignFile(filepath string, key string) (string, error) {
-  return signatures.SignFile(filepath, key)
+func SignFileDetached(filepath string, key string) (string, error) {
+  return signatures.SignFileDetached(filepath, key)
 }
 
+func SignAndEncryptFile(filepath, key string) (string, error) {
+  return signatures.SignAndEncryptFile(filepath, key)
+}
+  
 func VerifyDetached(message string, signature string) (bool, error) {
   return signatures.VerifyDetached(message, signature)
 }
@@ -42,6 +46,15 @@ func Verify(signed_msg string) bool {
   return signatures.Verify(signed_msg)
 }
 
-func VerifyFile(src_file string, sig_file string) (bool, error) {
-  return signatures.VerifyFile(src_file, sig_file)
+func VerifyFileDetached(src_file string, sig_file string) (bool, error) {
+  return signatures.VerifyFileDetached(src_file, sig_file)
 }
+
+func DecryptAndVerifyFile(cipher_file, output_file, key string) (bool, error) {
+  return signatures.DecryptAndVerifyFile(cipher_file, output_file, key)
+}
+
+func DecryptAndVerifyString(ciphertext, key string) (bool, string, error) {
+  return signatures.DecryptAndVerifyString(ciphertext, key)
+}
+

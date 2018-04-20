@@ -9,7 +9,7 @@ const APP string = "gpg"
 
 func Encrypt(input string, recipients ...string) (string, error) {
   if len(recipients) < 1 {
-    return "", errors.New("EncryptionError")
+    return "", errors.New("EncryptionError: no recipients given to Encrypt")
   }
   
   CMD := execution.Command {
@@ -24,7 +24,7 @@ func Encrypt(input string, recipients ...string) (string, error) {
   CMD.AddArgs("--encrypt", "-")
   ciphertext, err := CMD.Execute(input)
   if err != nil { 
-    return "", errors.New("EncryptionError") 
+    return "", errors.New("EncryptionError: Could not encrypt string") 
   }
   return ciphertext, nil
 }

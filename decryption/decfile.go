@@ -1,24 +1,25 @@
 package decryption
 
 import (
+  "github.com/kklash/gogpg/execution"
   "os"
   "errors"
 )
 
-func DecryptFile(filepath string) (string, error) {
-  fileh, err := os.Open(filepath)
-  if err != nil {
-    return "", errors.New("FileAccessError") 
+func DecryptFile(filepath string, output_path string) error {
+  if _, err := os.Stat(filepath); os.IsNotExist(err) {
+    return errors.New("FileAccessError: "+filepath+" path not found")
   }
-  stats, _ := fileh.Stat()
-  var length int64 = stats.Size()
-  data := make([]byte, length)
-  fileh.Read(data)
-  ciphertext := string(data)
   
-  plaintext, err := Decrypt(ciphertext)
-  if err != nil {
-    return "", errors.New("DecryptionError")
+  process := execution.Command {
+    App:  APP,
+    Args: []string { "--output", output_path, "--decrypt", filepath },
   }
-  return plaintext, nil
+  
+  success := process.CheckSuccess()
+  if success {
+    return nil
+  } else {
+    return errors.New("DecryptionError: could not decrypt " + filepath)
+  }
 }

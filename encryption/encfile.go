@@ -5,12 +5,9 @@ import (
   "github.com/kklash/gogpg/execution"
 )
 
-
-var EncryptionError error = errors.New("EncryptionError")
-
-func EncryptFile(filepath string, output_path string, recipients ...string) error {
+func EncryptFile(filepath, output_path string, recipients ...string) error {
   if len(recipients) < 1 {
-    return EncryptionError
+    return errors.New("EncryptionError: no recipients given to EncryptFile")
   }
   
   process := execution.Command {
@@ -27,6 +24,6 @@ func EncryptFile(filepath string, output_path string, recipients ...string) erro
   if process.CheckSuccess() {
     return nil
   } else {
-    return EncryptionError
+    return errors.New("EncryptionError: Could not encrypt " + filepath)
   }
 }

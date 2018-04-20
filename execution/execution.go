@@ -20,7 +20,8 @@ func (CMD *Command) AddArgs(new_args ...string) {
 func (CMD *Command) Execute(stdin ...string) (string, error) {
   var process *exec.Cmd = exec.Command(CMD.App, CMD.Args...)
   if stdin != nil { 
-    pipe, _ := process.StdinPipe()
+    pipe, err := process.StdinPipe()
+    if err != nil { return "", err }
     for _, input_str := range stdin {
       io.WriteString(pipe, input_str)
     }
@@ -34,7 +35,8 @@ func (CMD *Command) Execute(stdin ...string) (string, error) {
 func (CMD *Command) CheckSuccess(stdin ...string) bool {
   var process *exec.Cmd = exec.Command(CMD.App, CMD.Args...)
   if stdin != nil { 
-    pipe, _ := process.StdinPipe()
+    pipe, err := process.StdinPipe()
+    if err != nil { return false }
     for _, input_str := range stdin {
       io.WriteString(pipe, input_str)
     }

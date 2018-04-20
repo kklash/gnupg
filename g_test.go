@@ -1,10 +1,11 @@
-package main
+package gogpg
 
 import (
   "fmt"
   "github.com/kklash/gogpg/encryption"
   "github.com/kklash/gogpg/decryption"
   "github.com/kklash/gogpg/signatures"
+  "testing"
   "log"
 )
 
@@ -44,7 +45,7 @@ f8ULBdiJ2I4sn3fuVc0qhqHADY6Wbw8jG9wJJOsL1T360nzQNzk=
 
 
 
-func main() {
+func TestGPG(t *testing.T) {
   var (
     output string
     err error
@@ -55,7 +56,7 @@ func main() {
   if err != nil { log.Fatal(err) }
   fmt.Printf("%d ciphertext bytes encrypted from string\n", len(output))
   
-  output, err = encryption.EncryptFile("/Users/admin/.bash_profile", "konnor", "ariana")
+  err = encryption.EncryptFile("/Users/admin/.bash_profile", "/Users/admin/Desktop/cip.txt", "konnor", "ariana")
   if err != nil { log.Fatal(err) }
   fmt.Printf("%d ciphertext bytes encrypted from file\n", len(output))
   
@@ -63,7 +64,7 @@ func main() {
   if err != nil { log.Fatal(err) }
   fmt.Printf("%d plaintext chars decrypted from string\n", len(output))
   
-  output, err = decryption.DecryptFile("/Users/admin/Desktop/cip.txt")
+  err = decryption.DecryptFile("/Users/admin/Desktop/cip.txt", "/Users/admin/Desktop/output.txt")
   if err != nil { log.Fatal(err) }
   fmt.Printf("%d plaintext chars decrypted from file\n", len(output))
 
